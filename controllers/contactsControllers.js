@@ -1,8 +1,8 @@
-import { listContacts, getContactById, removeContact, addContact, updateContactById } from "./contactsServices.js";
+import { listContacts, getContactById, removeContact, addContact, updateContactById } from "../services/contactsServices.js";
 import { createContactSchema, 
-         updateContactSchema } from "./contactsSchemas.js"; 
-import validateBody from "./helpers/validateBody.js"; 
-import HttpError from "./helpers/HttpError.js";               
+         updateContactSchema } from "../schemas/contactsSchemas.js"; 
+import validateBody from "../helpers/validateBody.js"; 
+import HttpError from "../helpers/HttpError.js";               
 
 export const getAllContacts = async(req, res, next) => {
 try {
@@ -47,18 +47,23 @@ export const createContact = [
     const { name, email, phone } = req.body;
     try {
         if (!name || !email || !phone) {
-            throw new Error("Name, emali, phone are required fields");
+            throw new Error("Name, email, phone are required fields");
         } 
-        if (!validateEmail(email)) {
+        if (!isValidEmail(email)) {
             throw new Error("Invalid email format");
         }
-        const newContact = await addContact( name, email, phone);
+        const newContact = await addContact(name, email, phone);
         res.status(201).json(newContact);
     } catch (error) {
        next(HttpError(400, error.message));
     }
 }
 ];
+
+function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
 
 export const updateContact = [
     validateBody(updateContactSchema),
