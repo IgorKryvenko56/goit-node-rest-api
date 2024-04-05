@@ -1,17 +1,43 @@
 {
-    "name": "goit-node-rest-api",
-    "type": "module",
-    "scripts": {
-      "start": "node ./app.js",
-      "dev": "nodemon ./app.js"
-    },
-    "dependencies": {
-      "cors": "^2.8.5",
-      "express": "^4.18.2",
-      "joi": "^17.11.0",
-      "morgan": "^1.10.0"
-    },
-    "devDependencies": {
-      "nodemon": "^3.0.2"
+  "name": "goit-node-rest-api",
+  "type": "module",
+  "scripts": {
+    "start": "node ./app.js",
+    "dev": "nodemon ./app.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-jest": "^27.9.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^6.1.1",
+    "express": "^4.19.2",
+    "husky": "^9.0.11",
+    "joi": "^17.11.0",
+    "lint-staged": "^15.2.2",
+    "morgan": "^1.10.0",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "eslint": "^8.2.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.25.2",
+    "nodemon": "^3.0.2"
+  },
+  "lint-staged": {
+    "*.js": [
+      "eslint"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
     }
-  }
+  },
+  "version": "1.0.0",
+  "main": "app.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
