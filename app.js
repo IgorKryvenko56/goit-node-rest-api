@@ -3,6 +3,8 @@ import morgan from "morgan";
 import cors from "cors";
 const mongoose = require('mongoose');
 
+const DB_HOST = "mongodb+srv://ikryvenko:VrFieFrMhBxNFZ6g:@cluster0.theue9z.mongodb.net/db-contacts?retryWrites=true&w=majority&appName=Cluster0"
+
 mongoose.Promise = global.Promise;
 mongoose.connect(process.env.DB_HOST, {
   useNewUrlParser: true,
@@ -34,7 +36,7 @@ app.use((err, req, res, next) => {
 
 
 const { MongoClient, ServerApiVersion } = require('mongodb');
-const uri = "mongodb+srv://ikryvenko:<password>@cluster0.theue9z.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+const uri = "mongodb+srv://ikryvenko:VrFieFrMhBxNFZ6g@cluster0.theue9z.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -63,3 +65,7 @@ run().catch(console.dir);
 app.listen(3000, () => {
   console.log("Server is running. Use our API on port: 3000");
 });
+
+//7UNftLVPWwdfP8yU- Igor for Project Node.js;
+//VrFieFrMhBxNFZ6g- ikryvenko for Project0;
+//mongodb+srv://ikryvenko:<password>@cluster0.theue9z.mongodb.net/
