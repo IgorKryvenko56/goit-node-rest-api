@@ -2,6 +2,7 @@ import { listContacts, getContactById, removeContact, addContact, updateContactB
 import { createContactSchema, updateContactSchema } from "../schemas/contactsSchemas.js"; 
 import validateBody from "../helpers/validateBody.js"; 
 import HttpError from "../helpers/HttpError.js"; 
+import { isValidObjectId } from 'mongoose';
 
 // Middleware to validate request body
 const validateRequestBody = (req, res, next) => {
@@ -25,6 +26,11 @@ try {
 
 export const getOneContact = async (req, res, next) => {
     const { id } =req.params;
+
+    if (!isValidObjectId(id)) {
+        return next(HttpError(400, 'Invalid contact ID'));
+      }
+
     try {
         const contact =await getContactById(id);
      if (contact) {
@@ -39,6 +45,11 @@ export const getOneContact = async (req, res, next) => {
 
 export const deleteContact = async(req, res, next) => {
     const { id } = req.params;
+
+    if (!isValidObjectId(id)) {
+        return next(HttpError(400, 'Invalid contact ID'));
+       }
+
     try {
         const deletedContact = await removeContact(id);
         if (deletedContact) {
