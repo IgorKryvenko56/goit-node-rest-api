@@ -36,11 +36,11 @@ export const getOneContact = async (req, res, next) => {
      if (contact) {
         res.status(200).json(contact);
      } else {
-        next(HttpError(404, "Not found")); 
+       return next(HttpError(404, "Not found")); 
      }   
-    } catch {
+     } catch {
         next(HttpError(500, "Internal Server Error"));
- }
+     }
 };
 
 export const deleteContact = async(req, res, next) => {
@@ -52,13 +52,13 @@ export const deleteContact = async(req, res, next) => {
 
     try {
         const deletedContact = await removeContact(id);
-        if (deletedContact) {
-            res.status(200).json(deletedContact);
-        } else {
-            next(HttpError(404, "Not found"));
-        }
-        } catch(error) {
-            next(HttpError(500, "Internal Server Error"))
+        if (!deletedContact) {
+            return res.status(404).json({ message: 'Contact not found' });
+          }
+          res.status(200).json(deletedContact);
+        } catch (error) {
+          console.error('Error deleting contact:', error);
+          next(HttpError(500, 'Internal Server Error'));
         }
     };
 
@@ -68,15 +68,15 @@ export const createContact = [
     const { name, email, phone } = req.body;
     try {
         if (!name || !email || !phone) {
-            throw new Error("Name, email, phone are required fields");
+            return next(HttpError(400, "Name, email, phone are required fields"));
         } 
         if (!isValidEmail(email)) {
-            throw new Error("Invalid email format");
+            return next(HttpError(400, "Invalid email format"));
         }
         const newContact = await addContact(name, email, phone);
         res.status(201).json(newContact);
     } catch (error) {
-       next(HttpError(400, error.message));
+       return next(HttpError(500,'Internal Server Error'));
     }
 }
 ];
@@ -88,17 +88,17 @@ export const updateContact = [
         const newData = req.body;
         try {
             if (Object.keys(newData).length === 0) {
-                throw new Error("Body must have at least one field");
+                return next(HttpError(400, "Body must have at least one field"));
             }
              
         const updatedContact = await updateContactById(id, newData);
         if (updatedContact) {
             res.status(200).json(updatedContact);
         } else {
-            next(HttpError(404, "Not found"));
+            return next(HttpError(404, "Contact not found"));
         }  
         } catch (error) {
-            next(HttpError(400, error.message));
+            return next(HttpError(400, error.message));
         }
      }
 ]; 
