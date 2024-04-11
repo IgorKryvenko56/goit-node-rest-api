@@ -25,7 +25,7 @@ try {
 };
 
 export const getOneContact = async (req, res, next) => {
-    const { id } =req.params;
+    const { id } = req.params;
 
     if (!isValidObjectId(id)) {
         return next(HttpError(400, 'Invalid contact ID'));
