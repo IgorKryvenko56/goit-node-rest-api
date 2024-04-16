@@ -9,10 +9,15 @@ const __dirname = dirname(__filename);
 const contactsPath = join(__dirname, 'contacts.json');
 
 
-export async function listContacts() {
+export async function listContacts(ownerId) {
     try {
         const data = await fs.readFile(contactsPath, 'utf-8');
         return JSON.parse(data);
+
+        // Filter contacts based on ownerId (if provided)
+        const filteredContacts = ownerId ? contacts.filter(contact => contact.owner === ownerId) : contacts;
+        
+        return filteredContacts;
     } catch (error) {
         console.error('Error reading contacts:', error);
         return [];
@@ -49,11 +54,11 @@ export async function removeContact(contactId) {
     }
 }
 
-export async function addContact(name, email, phone) {
+export async function addContact(name, email, phone, ownerId) {
     try {
         const data = await fs.readFile(contactsPath, 'utf-8');
         let contacts = JSON.parse(data);
-        const newContact = { id: uuidv4(), name, email, phone };
+        const newContact = { id: uuidv4(), name, email, phone,owner: ownerId };
         contacts.push(newContact);
         await fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
         return newContact;

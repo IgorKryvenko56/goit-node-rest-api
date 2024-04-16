@@ -2,7 +2,9 @@ import { listContacts, getContactById, removeContact, addContact, updateContactB
 import { createContactSchema, 
          updateContactSchema } from "../schemas/contactsSchemas.js"; 
 import validateBody from "../helpers/validateBody.js"; 
-import HttpError from "../helpers/HttpError.js";               
+import HttpError from "../helpers/HttpError.js"; 
+import User from "../models/User.js";
+        
 
 export const getAllContacts = async(req, res, next) => {
 try {
@@ -46,13 +48,16 @@ export const createContact = [
     async (req, res, next) => {
     const { name, email, phone } = req.body;
     try {
-        if (!name || !email || !phone) {
+         // Retrieve authenticated user's ObjectId from req.user
+         const ownerId = req.user._id; // Assuming req.user._id is provided by authentication middleware
+        
+         if (!name || !email || !phone) {
             throw new Error("Name, email, phone are required fields");
         } 
         if (!isValidEmail(email)) {
             throw new Error("Invalid email format");
         }
-        const newContact = await addContact(name, email, phone);
+        const newContact = await addContact(name, email, phone, ownerId);
         res.status(201).json(newContact);
     } catch (error) {
        next(HttpError(400, error.message));

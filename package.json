@@ -7,7 +7,9 @@
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
+    "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-jest": "^27.9.0",
     "eslint-plugin-node": "^11.1.0",
@@ -17,6 +19,7 @@
     "joi": "^17.11.0",
     "jsonwebtoken": "^9.0.2",
     "lint-staged": "^15.2.2",
+    "mongoose": "^8.3.1",
     "morgan": "^1.10.0",
     "passport-jwt": "^4.0.1",
     "uuid": "^9.0.1"
