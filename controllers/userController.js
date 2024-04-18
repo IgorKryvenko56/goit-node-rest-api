@@ -3,6 +3,8 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { registerSchema, loginSchema } from '../schemas/authSchemas.js';
 
+const SALT_ROUNDS = 10;
+
 export const registerUser = async (req, res) => {
     try {
         // Validate request body against registerSchema
@@ -11,7 +13,7 @@ export const registerUser = async (req, res) => {
             return res.status(400).json({ message: error.details[0].message });
         }
 
-        const { name, email, password } = value;
+        const { email, password } = value;
 
         // Check if email is already in use
         const existingUser = await User.findOne({ email });
@@ -20,17 +22,17 @@ export const registerUser = async (req, res) => {
         }
 
         // Hash the password
-        const hashedPassword = await bcrypt.hash(password, 10);
+        const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
 
-        // Create a new user
-        const newUser = new User({ name, email, password: hashedPassword });
+        // Create a new user with hashed password
+        const newUser = new User({ email, password: hashedPassword });
         await newUser.save();
 
         // Return success response
         res.status(201).json({
             user: {
                 email: newUser.email,
-                subscription: newUser.subscription || 'starter', // Default subscription
+                subscription: newUser.subscription || 'starter',
             },
         });
     } catch (error) {
@@ -41,7 +43,6 @@ export const registerUser = async (req, res) => {
 
 export const loginUser = async (req, res) => {
     try {
-        // Validate request body
         const { error, value } = loginSchema.validate(req.body);
         if (error) {
             return res.status(400).json({ message: error.details[0].message });
@@ -55,20 +56,28 @@ export const loginUser = async (req, res) => {
             return res.status(401).json({ message: 'Email or password is wrong' });
         }
 
+        // Log password comparison details
+        console.log('Input password:', password);
+        console.log('Stored hashed password:', user.password);
+
         // Compare passwords
         const isPasswordMatch = await bcrypt.compare(password, user.password);
+        //console.log('Result of bcrypt.compare():', isPasswordMatch);
+
+        // Simulate a successful password comparison (for testing only)
+        //const isPasswordMatch = true; 
+
         if (!isPasswordMatch) {
             return res.status(401).json({ message: 'Email or password is wrong' });
         }
 
-        // Generate JWT token
+        // Generate JWT token and update user
         const token = jwt.sign(
             { userId: user._id, email: user.email },
             process.env.JWT_SECRET,
             { expiresIn: '1h' }
         );
 
-        // Update user with token
         user.token = token;
         await user.save();
 
@@ -85,6 +94,3 @@ export const loginUser = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
-
-
-

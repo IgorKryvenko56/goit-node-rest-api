@@ -11,5 +11,6 @@ protectedRouter.get('/profile', authMiddleware, (req, res) => {
   res.status(200).json({ email, subscription });
 });
 
+
 export default protectedRouter;
 

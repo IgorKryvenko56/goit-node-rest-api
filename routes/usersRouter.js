@@ -4,9 +4,11 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import Joi from 'joi';
 import User from '../models/User.js';
+import Contact from '../models/Contact.js'; 
 import { registerSchema, loginSchema } from '../schemas/authSchemas.js';
 import authMiddleware from '../middleware/authMiddleware.js';
 import { registerUser, loginUser } from '../controllers/userController.js';
+import { verifyContactOwner }  from '../middleware/verifyOwner.js';
 
 const router = express.Router();
 
@@ -29,6 +31,21 @@ router.get('/current', authMiddleware, async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
+
+router.get('/contacts/:contactId', verifyContactOwner , async (req, res) => {
+    const contactId = req.params.contactId;
+    try {
+        const contact = await Contact.getContactById(contactId);
+        if (!contact) {
+            return res.status(404).json({ message: 'Contact not found' });
+        }
+
+    res.json(contact || []);
+} catch (error) {
+    console.error('Error getting contact by id:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+}
+  });
 
 // POST /users/logout
 router.post('/logout', authMiddleware, async (req, res) => {
@@ -60,25 +77,3 @@ export default router;
 
 
 
-/*import express from 'express';
-import { registerUser, loginUser } from '../controllers/userController.js';
-
-const router = express.Router();
-
-// POST /api/users/register - User registration endpoint
-router.post('/register', registerUser);
-
-// POST /api/users/login - User login endpoint
-router.post('/login', loginUser);
-
-export default router;*/
-  
-
-/*import jwt from 'jsonwebtoken';
-import express from 'express';
-import User from '../models/User.js';
-import bcrypt from 'bcryptjs';
-import Joi from 'joi';
-import { registerSchema } from '../schemas/authSchemas.js';
-import authMiddleware from '../middleware/authMiddleware.js';
-import { registerUser, loginUser } from '../controllers/userController.js';*/

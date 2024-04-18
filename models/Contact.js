@@ -1,8 +1,5 @@
 // models/Contact.js
-import { Schema } from 'mongoose';
-import Joi from "joi";
-import HttpError from "../HttpError.js";
-
+import { Schema, model } from 'mongoose';
 
 const contactSchema = new Schema({
   name: {
@@ -23,8 +20,6 @@ const contactSchema = new Schema({
     required: true,
   },
 });
-
-contactSchema.post("save", HttpError);
 
 const Contact = model('Contact', contactSchema);
 

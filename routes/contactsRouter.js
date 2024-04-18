@@ -6,6 +6,7 @@ import {
   createContact,
   updateContact,
 } from "../controllers/contactsControllers.js";
+import { verifyContactOwner } from "../middleware/verifyOwner.js";
 
 const contactsRouter = express.Router();
 
@@ -13,10 +14,10 @@ contactsRouter.get("/", getAllContacts);
 
 contactsRouter.get("/:id", getOneContact);
 
-contactsRouter.delete("/:id", deleteContact);
+contactsRouter.delete("/:id", verifyContactOwner, deleteContact);
 
 contactsRouter.post("/", createContact);
 
-contactsRouter.put("/:id", updateContact);
+contactsRouter.put("/:id", verifyContactOwner, updateContact);
 
 export default contactsRouter;

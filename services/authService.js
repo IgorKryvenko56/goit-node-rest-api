@@ -1,6 +1,6 @@
 // services/authService.js
 import jwt from 'jsonwebtoken';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 
 const SECRET_KEY = 'Svetlana'; 
 const EXPIRATION_TIME = '1h'; 

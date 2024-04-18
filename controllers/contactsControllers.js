@@ -3,15 +3,15 @@ import { createContactSchema,
          updateContactSchema } from "../schemas/contactsSchemas.js"; 
 import validateBody from "../helpers/validateBody.js"; 
 import HttpError from "../helpers/HttpError.js"; 
-import User from "../models/User.js";
+import { verifyContactOwner } from "../middleware/verifyOwner.js";
         
 
 export const getAllContacts = async(req, res, next) => {
 try {
-    const contacts = await listContacts();
+    const contacts = await listContacts(req.user._id);
     res.status(200).json(contacts);
 } catch (error) {
-    next(HttpError(500, "Intarnal Server Error"));
+    next(HttpError(500, "Internal Server Error"));
 }
 };
 
@@ -20,6 +20,10 @@ export const getOneContact = async (req, res, next) => {
     try {
         const contact =await getContactById(id);
      if (contact) {
+         // Ensure the user is authorized to access this contact
+         if (contact.owner.toString() !== req.user._id) {
+            return res.status(403).json({ message: 'Unauthorized to access this contact' });
+          }    
         res.status(200).json(contact);
      } else {
         next(HttpError(404, "Not found")); 
@@ -29,19 +33,20 @@ export const getOneContact = async (req, res, next) => {
  }
 };
 
-export const deleteContact = async(req, res, next) => {
+export const deleteContact = [verifyContactOwner, async(req, res, next) => {
     const { id } = req.params;
     try {
         const deletedContact = await removeContact(id);
         if (deletedContact) {
-            res.status(200).json(deletedContact);
+           res.status(200).json(deletedContact);
         } else {
             next(HttpError(404, "Not found"));
         }
         } catch(error) {
             next(HttpError(500, "Internal Server Error"))
         }
-    };
+    }
+];
 
 export const createContact = [
     validateBody(createContactSchema),
@@ -71,6 +76,7 @@ function isValidEmail(email) {
 }
 
 export const updateContact = [
+    verifyContactOwner, 
     validateBody(updateContactSchema),
     async(req, res, next) => {
         const { id } = req.params;
