@@ -56,19 +56,15 @@ export const loginUser = async (req, res) => {
             return res.status(401).json({ message: 'Email or password is wrong' });
         }
 
-        // Log password comparison details
-        console.log('Input password:', password);
-        console.log('Stored hashed password:', user.password);
+         // Extract input password and stored hashed password
+        const inputPassword = req.body.password.trim();
+        const storedHashedPassword = user.password;
 
         // Compare passwords
-        const isPasswordMatch = await bcrypt.compare(password, user.password);
-        //console.log('Result of bcrypt.compare():', isPasswordMatch);
+    const isPasswordMatch = await bcrypt.compare(inputPassword, storedHashedPassword);
 
-        // Simulate a successful password comparison (for testing only)
-        //const isPasswordMatch = true; 
-
-        if (!isPasswordMatch) {
-            return res.status(401).json({ message: 'Email or password is wrong' });
+    if (!isPasswordMatch) {
+        return res.status(401).json({ message: 'Email or password is wrong' });
         }
 
         // Generate JWT token and update user
