@@ -17,8 +17,15 @@ try {
 
 export const getOneContact = async (req, res, next) => {
     const { id } =req.params;
+    const ownerId = req.user._id;
+
     try {
-        const contact =await getContactById(id);
+        const contact = await getContactById(id, ownerId);
+
+        if (!contact) {
+          return next(HttpError(404, 'Contact not found'));
+        }
+
      if (contact) {
          // Ensure the user is authorized to access this contact
          if (contact.owner.toString() !== req.user._id) {
@@ -37,11 +44,13 @@ export const deleteContact = [verifyContactOwner, async(req, res, next) => {
     const { id } = req.params;
     try {
         const deletedContact = await removeContact(id);
-        if (deletedContact) {
-           res.status(200).json(deletedContact);
-        } else {
-            next(HttpError(404, "Not found"));
-        }
+
+        if (!deletedContact) {
+            return next(HttpError(404, "Contact not found"));
+          }
+      
+          res.status(200).json(deletedContact);
+       
         } catch(error) {
             next(HttpError(500, "Internal Server Error"))
         }
@@ -52,11 +61,9 @@ export const createContact = [
     validateBody(createContactSchema),
     async (req, res, next) => {
     const { name, email, phone } = req.body;
+    const ownerId = req.user._id;
     try {
-         // Retrieve authenticated user's ObjectId from req.user
-         const ownerId = req.user._id; // Assuming req.user._id is provided by authentication middleware
-        
-         if (!name || !email || !phone) {
+        if (!name || !email || !phone) {
             throw new Error("Name, email, phone are required fields");
         } 
         if (!isValidEmail(email)) {
@@ -70,11 +77,6 @@ export const createContact = [
 }
 ];
 
-function isValidEmail(email) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-}
-
 export const updateContact = [
     verifyContactOwner, 
     validateBody(updateContactSchema),
@@ -87,13 +89,19 @@ export const updateContact = [
             }
              
         const updatedContact = await updateContactById(id, newData);
-        if (updatedContact) {
-            res.status(200).json(updatedContact);
-        } else {
-            next(HttpError(404, "Not found"));
-        }  
+
+        if (!updatedContact) {
+            return next(HttpError(404, "Contact not found"));
+          }
+      
+          res.status(200).json(updatedContact);
         } catch (error) {
             next(HttpError(400, error.message));
         }
      }
 ]; 
+
+function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
