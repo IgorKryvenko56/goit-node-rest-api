@@ -7,7 +7,7 @@ export async function listContacts(ownerId) {
 
     } catch (error) {
         console.error('Error reading contacts:', error);
-        return [];
+        throw new Error('Error reading contacts');
     }
 }
 
@@ -17,9 +17,10 @@ export async function getContactById(contactId, ownerId) {
         return contact;
     } catch (error) {
         console.error('Error getting contact by id:', error);
-        return null;
+        throw new Error('Error getting contact by id');
     }
 }
+
 
 export async function removeContact(contactId, ownerId) {
     try {
@@ -28,7 +29,7 @@ export async function removeContact(contactId, ownerId) {
 
     } catch (error) {
         console.error('Error removing contact:', error);
-        return null;
+        throw new Error('Error removing contact');
     }
 }
 
@@ -39,7 +40,7 @@ export async function addContact(name, email, phone, ownerId) {
         return newContact;
     } catch (error) {
         console.error('Error adding contact:', error);
-        return null;
+        throw new Error('Error adding contact'); 
     }
 }
 
@@ -53,7 +54,7 @@ export async function updateContactById(contactId, newData,ownerId ) {
         return updatedContact; 
     } catch (error) {
         console.error('Error updating contact by id:', error);
-        return null;
+        throw new Error('Error updating contact by id');
     }
 }
 

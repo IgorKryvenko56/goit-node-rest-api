@@ -1,7 +1,7 @@
 import Contact from '../models/Contact.js';
 
 export const verifyContactOwner = async (req, res, next) => {
-  const { userId } = req.body;
+  const { userId } = req.user;
   const { id } = req.params;
 
   try {
@@ -10,7 +10,7 @@ export const verifyContactOwner = async (req, res, next) => {
       return res.status(404).json({ message: 'Contact not found' });
     }
 
-    if (contact.owner.toString() !== userId) {
+    if (!contact.owner || contact.owner.toString() !== userId) {
       return res.status(403).json({ message: 'Unauthorized to modify this contact' });
     }
 

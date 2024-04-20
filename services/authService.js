@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
 const SECRET_KEY = 'Svetlana'; 
-const EXPIRATION_TIME = '1h'; 
+const EXPIRATION_TIME = '10h'; 
 
 const generateToken = (user) => {
   return jwt.sign({ id: user.id, username: user.username }, SECRET_KEY, { expiresIn: EXPIRATION_TIME });
