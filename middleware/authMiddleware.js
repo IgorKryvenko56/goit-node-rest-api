@@ -6,29 +6,32 @@ import HttpError from '../helpers/HttpError.js';
 
 const authMiddleware = async (req, res, next) => {
   try {
-    // Get token from Authorization header
-    //const token = req.headers.authorization?.replace('Bearer ', '');
-    //if (!token) {
-     // return res.status(401).json({ message: 'Not authorized' });}
      const authHeader = req.headers.authorization;
+
      if (!authHeader || !authHeader.startsWith('Bearer ')) {
        return res.status(401).json({ message: 'Authorization header missing or malformed' });
      }
- 
      const token = authHeader.split(' ')[1];
-    // Verify token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+     console.log('Received token:', token); // Log the received token
 
-    // Check if decoded token contains userId
+    // Verify token
+     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+     console.log('Decoded token:', decoded); // Log the decoded token
+    
+     // Check if decoded token contains userId
+
     if (!decoded || !decoded.userId) {
+      console.log('Decoded token is invalid or missing userId'); // Log if userId is missing
       return res.status(401).json({ message: 'Not authorized' });
     }
 
     // Find user in database using userId from token
     const user = await User.findById(decoded.userId);
-
-    // Check if user or token does not match
-    if (!user || user.token !== token) {
+    console.log('User found by userId:', user); // Log the user found by userId
+   
+    // Check if user does not match
+    if (!user) {
+      console.log('User not found in the database'); // Log if user is not found
       return res.status(401).json({ message: 'Not authorized' });
     }
 
@@ -42,3 +45,9 @@ const authMiddleware = async (req, res, next) => {
 };
 
 export default authMiddleware;
+
+
+  // Get token from Authorization header
+    //const token = req.headers.authorization?.replace('Bearer ', '');
+    //if (!token) {
+     // return res.status(401).json({ message: 'Not authorized' });}

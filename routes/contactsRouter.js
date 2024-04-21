@@ -25,6 +25,8 @@ contactsRouter.delete("/:id", verifyContactOwner, deleteContact);
 
 contactsRouter.post("/", validateBody(createContactSchema), createContact);
 
+contactsRouter.patch("/:id", verifyContactOwner, validateBody(updateContactSchema), updateContact);
+
 contactsRouter.put("/:id", verifyContactOwner, validateBody(updateContactSchema), updateContact);
 
 export default contactsRouter;

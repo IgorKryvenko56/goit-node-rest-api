@@ -35,13 +35,11 @@ export const getOneContact = async (req, res, next) => {
 
      //if (contact) {
          // Ensure the user is authorized to access this contact
-         if (contact.owner.toString() !== req.user._id) {
+         if (contact.owner.toString() !== ownerId) {
             return res.status(403).json({ message: 'Unauthorized to access this contact' });
           }    
         res.status(200).json(contact);
-     //} else {
-       // next(HttpError(404, "Not found")); 
-     //}   
+        
     } catch {
         next(HttpError(500, "Internal Server Error"));
  }
@@ -49,8 +47,9 @@ export const getOneContact = async (req, res, next) => {
 
 export const deleteContact = [verifyContactOwner, async(req, res, next) => {
     const { id } = req.params;
+    const ownerId = req.user && req.user._id;
     try {
-        const deletedContact = await removeContact(id, req.user._id);
+        const deletedContact = await removeContact(id, ownerId);
 
         if (!deletedContact) {
             return next(HttpError(404, "Contact not found"));
@@ -69,22 +68,26 @@ export const createContact = [
     async (req, res, next) => {
     const { name, email, phone } = req.body;
     const ownerId = req.user._id;
+    console.log('Incoming request body:', req.body); // Log the incoming request body
+    console.log('Extracted ownerId from token:', ownerId); // Log the extracted ownerId from token
+
     try {
-       // if (!name || !email || !phone) {
-           // throw new Error("Name, email, phone are required fields");} 
-        //if (!isValidEmail(email)) {
-           // throw new Error("Invalid email format");}
-           const isValid = isValidEmail(email); // Validate email format
+      const isValid = isValidEmail(email); // Validate email format
       if (!isValid) {
         throw new Error("Invalid email format");
       }
+      const ownerId = req.user._id;
+console.log('OwnerId extracted from token:', ownerId); // Log the ownerId before calling addContact
         const newContact = await addContact(name, email, phone, ownerId);
+        console.log('New contact created:', newContact); // Log the newly created contact
         res.status(201).json(newContact);
     } catch (error) {
+       console.error('Error creating contact:', error);
        next(HttpError(400, error.message));
     }
 }
 ];
+
 
 export const updateContact = [
     verifyContactOwner, 
@@ -92,12 +95,13 @@ export const updateContact = [
     async(req, res, next) => {
         const { id } = req.params;
         const newData = req.body;
+        const ownerId = req.user && req.user._id;
         try {
             if (Object.keys(newData).length === 0) {
                 throw new Error("Body must have at least one field");
             }
              
-        const updatedContact = await updateContactById(id, newData, req.user._id);
+        const updatedContact = await updateContactById(id, newData, ownerId);
 
         if (!updatedContact) {
             return next(HttpError(404, "Contact not found"));

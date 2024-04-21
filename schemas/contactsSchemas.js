@@ -7,7 +7,7 @@ export const createContactSchema = Joi.object({
   name: Joi.string().required().trim(),
   email: Joi.string().email().required().trim(),
   phone: Joi.string().required().trim(),
-  userId: Joi.string().required().trim()
+  
 });
 
 // Schema for updating an existing contact
@@ -15,7 +15,7 @@ export const updateContactSchema = Joi.object({
   name: Joi.string().allow('').trim(),
   email: Joi.string().email().allow('').trim(),
   phone: Joi.string().allow('').trim(),
-  userId: Joi.string().trim().required(),
+ 
  
 });
 
