@@ -1,7 +1,7 @@
 // middleware/authMiddleware.js
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
-import HttpError from '../helpers/HttpError.js';
+//import HttpError from '../helpers/HttpError.js';
 
 
 const authMiddleware = async (req, res, next) => {
@@ -28,7 +28,7 @@ const authMiddleware = async (req, res, next) => {
     // Find user in database using userId from token
     const user = await User.findById(decoded.userId);
     console.log('User found by userId:', user); // Log the user found by userId
-   
+    
     // Check if user does not match
     if (!user) {
       console.log('User not found in the database'); // Log if user is not found
@@ -36,7 +36,11 @@ const authMiddleware = async (req, res, next) => {
     }
 
     // Attach user data to the request object for further use in protected routes
-    req.user = user;
+    req.user =  {
+      userId: user._id,
+      email: user.email, // Include any other relevant user data
+    };
+ 
     next();
   } catch (error) {
     console.error('Token validation error:', error);

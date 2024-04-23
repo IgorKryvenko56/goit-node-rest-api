@@ -21,12 +21,12 @@ contactsRouter.get("/", getAllContacts);
 
 contactsRouter.get("/:id", getOneContact);
 
-contactsRouter.delete("/:id", verifyContactOwner, deleteContact);
+contactsRouter.delete("/:id", authMiddleware, verifyContactOwner, deleteContact);
 
 contactsRouter.post("/", validateBody(createContactSchema), createContact);
 
-contactsRouter.patch("/:id", verifyContactOwner, validateBody(updateContactSchema), updateContact);
+contactsRouter.patch("/:id",authMiddleware, verifyContactOwner, validateBody(updateContactSchema), updateContact);
 
-contactsRouter.put("/:id", verifyContactOwner, validateBody(updateContactSchema), updateContact);
+contactsRouter.put("/:id", authMiddleware, verifyContactOwner, validateBody(updateContactSchema), updateContact);
 
 export default contactsRouter;

@@ -32,6 +32,9 @@ export const getOneContact = async (req, res, next) => {
         if (!contact) {
           return next(HttpError(404, 'Contact not found'));
         }
+        // Log contact owner and current user's ID for comparison
+    console.log('Contact owner:', contact.owner);
+    console.log('Current user ID:', ownerId);
 
      //if (contact) {
          // Ensure the user is authorized to access this contact
@@ -47,13 +50,18 @@ export const getOneContact = async (req, res, next) => {
 
 export const deleteContact = [verifyContactOwner, async(req, res, next) => {
     const { id } = req.params;
-    const ownerId = req.user && req.user._id;
+    const ownerId = req.user && req.user.userId;
     try {
         const deletedContact = await removeContact(id, ownerId);
 
         if (!deletedContact) {
             return next(HttpError(404, "Contact not found"));
           }
+
+          // Log contact owner and current user's ID for comparison
+    console.log('Contact owner:', deletedContact.owner);
+    console.log('Current user ID:', ownerId);
+
       
           res.status(200).json(deletedContact);
        
@@ -95,8 +103,25 @@ export const updateContact = [
     async(req, res, next) => {
         const { id } = req.params;
         const newData = req.body;
-        const ownerId = req.user && req.user._id;
+        const ownerId = req.user && req.user.userId;
+
+        // Log the received parameters and extracted ownerId
+        console.log('Request Params (id):', id);
+        console.log('New Data:', newData);
+        console.log('Owner ID (from token):', ownerId);
+
         try {
+             // Fetch the contact and perform ownership verification
+             const contact = await getContactById(id, ownerId);
+             if (!contact) {
+                return next(HttpError(404, "Contact not found"));
+            }
+
+     // Log the contact owner and current user's ID (ownerId)
+    console.log('Contact Owner ID:', contact.owner);
+    console.log('Current User ID (ownerId):', ownerId);
+
+     // Check if the newData contains at least one field
             if (Object.keys(newData).length === 0) {
                 throw new Error("Body must have at least one field");
             }
@@ -109,6 +134,7 @@ export const updateContact = [
       
           res.status(200).json(updatedContact);
         } catch (error) {
+            console.error('Error updating contact:', error);
             next(HttpError(400, error.message));
         }
      }
