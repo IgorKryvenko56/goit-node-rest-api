@@ -2,7 +2,7 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 
-const { Schema } = mongoose;
+const { Schema, model } = mongoose;
 
 const userSchema = new Schema({
     email: {
@@ -30,7 +30,7 @@ const userSchema = new Schema({
 { versionKey: false, timestamps: true });
   
 
-const User = mongoose.model('User', userSchema);
+const User = model('User', userSchema);
 
 export default User;
 

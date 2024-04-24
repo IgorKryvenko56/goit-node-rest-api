@@ -90,3 +90,30 @@ export const loginUser = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
+
+// Function to get current user's details
+export const getCurrentUser = async (userId) => {
+    try {
+        const user = await User.findById(userId);
+
+        return user; // Return user document
+    } catch (error) {
+        throw new Error('Error fetching current user'); // Handle error
+    }
+};
+
+export const postCurrentUserLogout = async (userId) => {
+    try {
+      const user = await User.findById(userId);
+  
+      if (!user) {
+        throw new Error('User not found');
+      }
+  
+      // Clear the token
+      user.token = null;
+      await user.save();
+    } catch (error) {
+      throw new Error('Error logging out user');
+    }
+  };

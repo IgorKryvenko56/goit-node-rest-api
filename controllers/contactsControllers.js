@@ -9,7 +9,7 @@ import isValidEmail from "../helpers/validation.js";
 
 export const getAllContacts = async(req, res, next) => {
 try {
-    const ownerId = req.user && req.user._id;
+    const ownerId = req.user && req.user.userId;
     if (!ownerId) {
         return next(HttpError(401, 'User not authenticated or missing user ID'));
       }
@@ -24,7 +24,7 @@ try {
 
 export const getOneContact = async (req, res, next) => {
     const { id } =req.params;
-    const ownerId = req.user._id;
+    const ownerId = req.user.userId;
 
     try {
         const contact = await getContactById(id, ownerId);
@@ -75,7 +75,7 @@ export const createContact = [
     validateBody(createContactSchema),
     async (req, res, next) => {
     const { name, email, phone } = req.body;
-    const ownerId = req.user._id;
+    const ownerId = req.user.userId;
     console.log('Incoming request body:', req.body); // Log the incoming request body
     console.log('Extracted ownerId from token:', ownerId); // Log the extracted ownerId from token
 
@@ -84,9 +84,7 @@ export const createContact = [
       if (!isValid) {
         throw new Error("Invalid email format");
       }
-      const ownerId = req.user._id;
-console.log('OwnerId extracted from token:', ownerId); // Log the ownerId before calling addContact
-        const newContact = await addContact(name, email, phone, ownerId);
+      const newContact = await addContact(name, email, phone, ownerId);
         console.log('New contact created:', newContact); // Log the newly created contact
         res.status(201).json(newContact);
     } catch (error) {

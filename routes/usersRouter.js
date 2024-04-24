@@ -7,7 +7,7 @@ import User from '../models/User.js';
 import Contact from '../models/Contact.js'; 
 import { registerSchema, loginSchema } from '../schemas/authSchemas.js';
 import authMiddleware from '../middleware/authMiddleware.js';
-import { registerUser, loginUser } from '../controllers/userController.js';
+import { registerUser, loginUser, getCurrentUser, postCurrentUserLogout } from '../controllers/userController.js';
 import { verifyContactOwner }  from '../middleware/verifyOwner.js';
 
 const router = express.Router();
@@ -22,10 +22,13 @@ router.post('/login', loginUser);
 router.get('/current', authMiddleware, async (req, res) => {
     try {
         // Access authenticated user's data from req.user
-        const { email, subscription } = req.user;
+        const user = await getCurrentUser(req.user.userId);
 
         // Return success response with user data
-        res.status(200).json({ email, subscription });
+        res.status(200).json({ 
+            email:user.email,
+            subscription: user.subscription || 'starter',
+        });
     } catch (error) {
         console.error('Current user error:', error);
         res.status(500).json({ message: 'Internal Server Error' });
@@ -50,19 +53,7 @@ router.get('/contacts/:contactId', verifyContactOwner , async (req, res) => {
 // POST /users/logout
 router.post('/logout', authMiddleware, async (req, res) => {
     try {
-        // Find user by ID
-        const user = await User.findById(req.user._id);
-
-        // Check if user exists
-        if (!user) {
-            return res.status(401).json({ message: 'Not authorized' });
-        }
-
-        // Clear the token
-        user.token = null;
-        await user.save();
-
-        // Return success response
+        await postCurrentUserLogout(req.user.userId);
         res.status(204).end(); // 204 No Content
     } catch (error) {
         console.error('Logout error:', error);
