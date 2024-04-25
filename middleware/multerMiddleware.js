@@ -1,20 +1,40 @@
 import multer from 'multer';
+import HttpError from '../helpers/HttpError';
 
 // Multer storage configuration
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
+const multerStorage = multer.diskStorage({
+  destination:(req, file, cb) => {
     cb(null, 'uploads/'); // Specify the directory for storing uploaded files
   },
   filename: function (req, file, cb) {
-    cb(null, file.originalname); // Use the original file name for the stored file
-  }
+    cb(null, path.join('public', 'avatars')); // Use the original file name for the stored file
+  },
+   filename: (req, file, cb) => {
+    const extension = file.mimetype.split('/')[1];
+    cb(null, `${req.user.id}-${v4()}.${extension}`);
+   },
 });
 
-// Create the Multer instance
-const upload = multer({ storage: storage });
+//config filter
+const multerFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith('avatars/')) {
+  cb(null, true);
+  } else {
+    cb(new HttpError(400, 'Please upload images only'), false);
+  }
+}
+
+// Create the Multer middleware
+export const uploadAvatar = multer({
+   storage: multerStorage,
+   fileFilter: multerFilter,
+   limits: {
+    fieldSize: 2 * 1024 * 1024,
+   },
+   }).single('avatar');
 
 // Multer middleware function for handling file uploads
-const uploadSingle = upload.single('avatar'); // 'avatar' should match the name attribute in the form field
+/*const uploadSingle = upload.single('avatar'); // 'avatar' should match the name attribute in the form field
 
 // Middleware function to handle file upload
 function handleAvatarUpload(req, res, next) {
@@ -29,3 +49,4 @@ function handleAvatarUpload(req, res, next) {
     next(); // Move to the next middleware
   });
 }
+*/
