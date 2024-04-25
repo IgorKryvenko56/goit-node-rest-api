@@ -1,8 +1,10 @@
 // models/User.js
-import { model, Schema } from 'mongoose';
+import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import gravatar from 'gravatar';
+
+const { Schema, model } = mongoose;
 
 const userSchema = new Schema({
     email: {
@@ -49,6 +51,6 @@ userSchema.pre('save', async function(next) {
 });
   
 
-const User = mongoose.model('User', userSchema);
+const User = model('User', userSchema);
 
 export default User;

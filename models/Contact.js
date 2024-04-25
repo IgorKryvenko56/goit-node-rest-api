@@ -17,7 +17,6 @@ const contactSchema = new Schema({
   owner: {
     type: Schema.Types.ObjectId,
     ref: 'User', // Reference to the User model
-    required: true,
   } 
 }, {
   versionKey: false // Exclude the __v field from the document
