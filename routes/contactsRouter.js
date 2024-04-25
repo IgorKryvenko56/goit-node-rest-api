@@ -14,8 +14,9 @@ import validateBody from "../helpers/validateBody.js";
 
 const contactsRouter = express.Router();
 
-// Apply authentication middleware to all contacts routes
+//Apply authentication middleware to routes that require authentication
 contactsRouter.use(authMiddleware);
+
 
 contactsRouter.get("/", getAllContacts);
 

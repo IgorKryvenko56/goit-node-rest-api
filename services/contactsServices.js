@@ -1,8 +1,10 @@
 import Contact from '../models/Contact.js';
+import mongoose from 'mongoose';
 
 export async function listContacts(ownerId) {
     try {
-        const contacts = await Contact.find({ owner: ownerId });
+        // Fetch contacts where owner is null or matches the provided ownerId
+        const contacts = await Contact.find({ $or:[{owner: ownerId}, {owner: null}]});
         return contacts;
 
     } catch (error) {
@@ -11,9 +13,13 @@ export async function listContacts(ownerId) {
     }
 }
 
-export async function getContactById(contactId, ownerId) {
+export async function getContactById(contactId) {
     try {
-        const contact = await Contact.findOne({ _id: contactId, owner: ownerId });
+        if (!mongoose.Types.ObjectId.isValid(contactId)) {
+            return null; // Return early if the contactId is not a valid ObjectId
+        }
+
+        const contact = await Contact.findOne({ _id: contactId });
         return contact;
     } catch (error) {
         console.error('Error getting contact by id:', error);

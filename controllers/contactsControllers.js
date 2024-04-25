@@ -5,16 +5,21 @@ import validateBody from "../helpers/validateBody.js";
 import HttpError from "../helpers/HttpError.js"; 
 import { verifyContactOwner } from "../middleware/verifyOwner.js";
 import isValidEmail from "../helpers/validation.js";
-       
+import Contact from '../models/Contact.js'; // Import the Contact model
+      
 
 export const getAllContacts = async(req, res, next) => {
 try {
+    console.log('User info:', req.user);
     const ownerId = req.user && req.user.userId;
+
     if (!ownerId) {
-        return next(HttpError(401, 'User not authenticated or missing user ID'));
-      }
-      
-    const contacts = await listContacts(ownerId);
+      // If ownerId is missing or undefined, return a 401 Unauthorized error
+      return next(HttpError(401, 'User not authenticated or missing user ID'));
+    }
+    // Retrieve all contacts where the owner is not specified (null or undefined)
+    const contacts = await Contact.find({ owner: { $exists: false } });
+   //const contacts = await listContacts(ownerId);
     res.status(200).json(contacts);
 } catch (error) {
     console.error('Error in getAllContacts:', error);
@@ -24,23 +29,22 @@ try {
 
 export const getOneContact = async (req, res, next) => {
     const { id } =req.params;
-    const ownerId = req.user.userId;
+    //const ownerId = req.user.userId;
 
     try {
-        const contact = await getContactById(id, ownerId);
+        const contact = await getContactById(id);
 
         if (!contact) {
           return next(HttpError(404, 'Contact not found'));
         }
         // Log contact owner and current user's ID for comparison
-    console.log('Contact owner:', contact.owner);
-    console.log('Current user ID:', ownerId);
+    //console.log('Contact owner:', contact.owner);
+    //console.log('Current user ID:', ownerId);
 
      //if (contact) {
          // Ensure the user is authorized to access this contact
-         if (contact.owner.toString() !== ownerId) {
-            return res.status(403).json({ message: 'Unauthorized to access this contact' });
-          }    
+         //if (contact.owner.toString() !== ownerId) {
+           // return res.status(403).json({ message: 'Unauthorized to access this contact' });}    
         res.status(200).json(contact);
         
     } catch {
