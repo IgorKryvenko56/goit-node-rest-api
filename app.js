@@ -1,30 +1,46 @@
-import express from "express";
-import morgan from "morgan";
-import cors from "cors";
+import express from 'express';
+import morgan from 'morgan';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import connectDB from './db/db.js';
+import usersRouter from './routes/usersRouter.js';
+import protectedRouter from './routes/protectedRouter.js';
+import contactsRouter from  "./routes/contactsRouter.js";
 
-import  contactsRouter from  "./routes/contactsRouter.js";
-
+dotenv.config();
 const app = express();
 
-app.use(morgan("tiny"));
+// Connect to MongoDB
+connectDB();
+
+// Middleware
+app.use(morgan('tiny'));
 app.use(cors());
 app.use(express.json());
 
+// Routes
+app.use('/api/users', usersRouter);
+app.use('/api/protected', protectedRouter);
 app.use("/api/contacts", contactsRouter);
 
-app.use((_, res) => {
-  res.status(404).json({ message: "Route not found" });
+
+// Handle unknown routes
+app.use((req, res) => { 
+    res.status(404).json({ message: 'Route not found' });
 });
 
+// Global error handler
 app.use((err, req, res, next) => {
-  const { status = 500, message = "Server error" } = err;
-  res.status(status).json({ message });
+    console.error('Error:', err);
+    res.status(500).json({ message: 'Server error' });
 });
 
 const PORT = process.env.PORT || 3000;
-
 app.listen(PORT, () => {
-  console.log(`Server is running. Use our API on port: ${PORT}`);
+    console.log(`Server is running on port ${PORT}`);
 });
+
+
+
 
 
