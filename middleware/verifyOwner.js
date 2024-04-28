@@ -20,13 +20,8 @@ export const verifyContactOwner = async (req, res, next) => {
       console.log('Contact not found')
       return res.status(404).json({ message: 'Contact not found' });
     }
-
     console.log('Contact owner:', contact.owner);
     console.log('Authenticated userId:', userId);
-
-//contact.owner and userId are both instances of ObjectId, 
-//but the comparison might not be working as expected 
-//due to the way ObjectId instances are compared in JavaScript.
 
 // Convert contact.owner to string before comparison 
     if (!contact.owner || contact.owner.toString() !== userId.toString()) {

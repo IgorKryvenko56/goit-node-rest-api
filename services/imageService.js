@@ -3,13 +3,14 @@ import path from "path";
 import { v4 } from "uuid";
 import * as fse from "fs-extra";
 import { HttpError } from "../helpers/HttpError.js";
+import sharp from "sharp";
 
 export class ImageService {
     static initUploadImageMiddleware (fieldName) {
         const multerStorage = multer.memoryStorage();
 
         const multerFilter = (req, file, cb) => {
-            if (file.mimetype.startsWith('avatars/')) {
+            if (file.mimetype.startsWith('image/')) {
             cb(null, true);
             } else {
               cb(new HttpError(400, 'Please upload images only'), false);

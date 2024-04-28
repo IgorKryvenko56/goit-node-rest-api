@@ -18,10 +18,15 @@ app.use(morgan("tiny"));
 app.use(cors());
 app.use(express.json());
 
-// Serve static files (avatars)
-//app.use('/avatars', express.static(path.join(process.cwd(), 'public', 'avatars')));
-app.use(express.static("public"));
+// Middleware to log request details
+app.use((req, res, next) => {
+  console.log('Incoming Request:', req.method, req.url);
+  console.log('Request Headers:', req.headers);
+  next();
+});
 
+// Serve static files (avatars)
+app.use(express.static("public"));
 
 // Routes
 app.use('/api/users', usersRouter);

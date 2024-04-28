@@ -29,29 +29,17 @@ try {
 
 export const getOneContact = async (req, res, next) => {
     const { id } =req.params;
-    //const ownerId = req.user.userId;
-
-    try {
+     try {
         const contact = await getContactById(id);
 
         if (!contact) {
           return next(HttpError(404, 'Contact not found'));
         }
-        // Log contact owner and current user's ID for comparison
-    //console.log('Contact owner:', contact.owner);
-    //console.log('Current user ID:', ownerId);
-
-     //if (contact) {
-         // Ensure the user is authorized to access this contact
-         //if (contact.owner.toString() !== ownerId) {
-           // return res.status(403).json({ message: 'Unauthorized to access this contact' });}    
-        res.status(200).json(contact);
-        
-    } catch {
+         res.status(200).json(contact);
+        } catch {
         next(HttpError(500, "Internal Server Error"));
  }
 };
-
 export const deleteContact = [verifyContactOwner, async(req, res, next) => {
     const { id } = req.params;
     const ownerId = req.user && req.user.userId;
@@ -61,13 +49,10 @@ export const deleteContact = [verifyContactOwner, async(req, res, next) => {
         if (!deletedContact) {
             return next(HttpError(404, "Contact not found"));
           }
-
-          // Log contact owner and current user's ID for comparison
+     // Log contact owner and current user's ID for comparison
     console.log('Contact owner:', deletedContact.owner);
     console.log('Current user ID:', ownerId);
-
-      
-          res.status(200).json(deletedContact);
+            res.status(200).json(deletedContact);
        
         } catch(error) {
             next(HttpError(500, "Internal Server Error"))
@@ -97,7 +82,6 @@ export const createContact = [
     }
 }
 ];
-
 
 export const updateContact = [
     verifyContactOwner, 
