@@ -33,5 +33,8 @@ const multerFileFilter = (req, file, cb) => {
     fileSize: 2 * 1024 * 1024, //1048576,
    },
 }).single("avatar");
+   
+  
+
 
    
