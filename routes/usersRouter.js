@@ -1,14 +1,17 @@
 // routes/usersRouter.js
 import express from 'express';
-import jwt from 'jsonwebtoken';
-import bcrypt from 'bcryptjs';
-import Joi from 'joi';
+//import jwt from 'jsonwebtoken';
+//import bcrypt from 'bcryptjs';
+//import Joi from 'joi';
 import User from '../models/User.js';
 import Contact from '../models/Contact.js'; 
 import { registerSchema, loginSchema } from '../schemas/authSchemas.js';
 import authMiddleware from '../middleware/authMiddleware.js';
-import { registerUser, loginUser, getCurrentUser, postCurrentUserLogout } from '../controllers/userController.js';
+import { registerUser, loginUser, getCurrentUser,
+         postCurrentUserLogout, updateUserAvatar } 
+         from '../controllers/userController.js';
 import { verifyContactOwner }  from '../middleware/verifyOwner.js';
+import { uploadAvatar } from "../middleware/multerMiddleware.js";
 
 const router = express.Router();
 
@@ -60,5 +63,8 @@ router.post('/logout', authMiddleware, async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 });
+// PATCH /api/users/avatars - Update user avatar endpoint
+router.patch('/avatars', authMiddleware, uploadAvatar, updateUserAvatar);
+
 
 export default router;

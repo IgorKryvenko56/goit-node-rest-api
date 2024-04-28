@@ -1,7 +1,13 @@
 import User from '../models/User.js';
+import jimp from 'jimp';
+import path from 'path';
+import fs from 'fs/promises';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { registerSchema, loginSchema } from '../schemas/authSchemas.js';
+import { uploadAvatar } from '../middleware/multerMiddleware.js';
+import HttpError from '../helpers/HttpError.js';
+
 
 const SALT_ROUNDS = 10;
 
@@ -117,3 +123,59 @@ export const postCurrentUserLogout = async (userId) => {
       throw new Error('Error logging out user');
     }
   };
+
+  // function to handle avatar update for authenticated users
+export const updateUserAvatar = async (req, res) => {
+  try {
+    // Use the uploadAvatar middleware to handle file upload
+    uploadAvatar(req, res, async (err) => {
+     
+      if (err) {
+        console.error('Error uploading file:', err);
+        return res.status(500).json({ message: 'Error uploading file.' });
+      }
+
+      try {
+
+    // Load the uploaded image using jimp
+      const imagePath = req.file.path;
+      const image = await jimp.read(imagePath);
+      
+      // Resize the image to 250x250 pixels
+      await image.resize(250, 250);// eslint-disable-next-line no-unused-vars
+
+      // Define paths for temporary and target (public/avatars) directories
+      const targetDir = path.resolve('public', 'avatars');
+      const userId = req.user.userId;
+      const fileExtension = req.file.originalname.split('.').pop();
+      const uniqueFilename = `${userId}.${fileExtension}`;
+      const targetFilePath = path.resolve(targetDir, uniqueFilename);
+
+      // Save the resized image to the public/avatars directory
+      await image.writeAsync(targetFilePath);
+
+       // Update user's avatarURL field in the database
+      const user = await User.findById(req.user.userId);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      const avatarURL = `/avatars/${uniqueFilename}`;
+      user.avatarURL = avatarURL;
+      await user.save();
+
+       // Delete the temporary file after processing
+       await fs.unlink(imagePath);
+
+     // Return success response with updated avatarURL
+      res.status(200).json({ avatarURL: avatarPath });
+    } catch (error) {
+      console.error('Error processing avatar:', error);
+      res.status(500).json({ message: 'Server error' });
+    }
+  });
+
+  } catch (error) {
+    console.error('Error updating avatar:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};

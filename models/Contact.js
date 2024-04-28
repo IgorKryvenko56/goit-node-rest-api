@@ -14,6 +14,10 @@ const contactSchema = new Schema({
     type: String,
     required: [true, 'Phone number is required'],
   },
+  favorite: {
+    type: Boolean,
+    default: false,
+  },
   owner: {
     type: Schema.Types.ObjectId,
     ref: 'User', // Reference to the User model

@@ -5,6 +5,7 @@ import {
   deleteContact,
   createContact,
   updateContact,
+  updateContactFavoriteStatus
 } from "../controllers/contactsControllers.js";
 import { verifyContactOwner } from "../middleware/verifyOwner.js";
 import authMiddleware from '../middleware/authMiddleware.js';
@@ -29,5 +30,8 @@ contactsRouter.post("/", validateBody(createContactSchema), createContact);
 contactsRouter.patch("/:id",authMiddleware, verifyContactOwner, validateBody(updateContactSchema), updateContact);
 
 contactsRouter.put("/:id", authMiddleware, verifyContactOwner, validateBody(updateContactSchema), updateContact);
+
+// PATCH to update favorite status of a contact by ID
+contactsRouter.patch("/:contactId/favorite", updateContactFavoriteStatus);
 
 export default contactsRouter;

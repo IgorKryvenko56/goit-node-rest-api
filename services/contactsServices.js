@@ -63,3 +63,17 @@ export async function updateContactById(contactId, newData,ownerId ) {
         throw new Error('Error updating contact by id');
     }
 }
+
+export const updateStatusContact = async (contactId, newData, ownerId) => {
+    try {
+      const updatedContact = await Contact.findByIdAndUpdate(
+        {_id:contactId, owner: ownerId },
+        newData,
+         { new: true });
+  
+      return updatedContact;
+    } catch (error) {
+      console.error('Error updating contact:', error);
+      throw new Error('Error updating contact by id');
+    }
+  };

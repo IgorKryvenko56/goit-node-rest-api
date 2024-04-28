@@ -141,3 +141,30 @@ export const updateContact = [
         }
      }
 ]; 
+
+// Update contact favorite status by ID
+export const updateContactFavoriteStatus = async (req, res) => {
+    const { contactId } = req.params;
+    const { favorite } = req.body;
+    try {
+     // Validate request body
+       if (typeof favorite !== 'boolean') {
+        return res.status(400).json({ message: 'Invalid request body' });
+       }
+  
+      const updatedContact = await updateStatusContact(contactId, { favorite });
+       if (!updatedContact) {
+        return res.status(404).json({ message: 'Contact not found' });
+      }
+  
+      res.json(updatedContact);
+    } catch (error) {
+      console.error('Error updating contact favorite status:', error);
+      res.status(400).json({ message: 'Failed to update contact favorite status', error: error.message });
+    }
+  };
+  
+    export const validateCreateContact = validateBody(createContactSchema);
+    export const validateUpdateContact = validateBody(updateContactSchema);
+  
+   
