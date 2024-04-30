@@ -1,8 +1,5 @@
 // routes/usersRouter.js
 import express from 'express';
-//import jwt from 'jsonwebtoken';
-//import bcrypt from 'bcryptjs';
-//import Joi from 'joi';
 import User from '../models/User.js';
 import Contact from '../models/Contact.js'; 
 import { registerSchema, loginSchema } from '../schemas/authSchemas.js';
@@ -63,34 +60,8 @@ router.post('/logout', authMiddleware, async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 });
+
 // PATCH /api/users/avatars - Update user avatar endpoint
-router.patch('/avatars', authMiddleware, uploadAvatar, updateUserAvatar,  (req, res) => {
-    // Log the entire req object
-    console.log('Request Object:', req);
-    console.log('Request Body:', req.body); // Log form fields
-console.log('Uploaded File:', req.file); // Log uploaded file
-
-    // Further processing...
-    try {
-        // Check if req.file is populated by multer
-        if (!req.file) {
-            console.log('No file attached to request.');
-            return res.status(400).json({ message: 'No file uploaded.' });
-        }
-
-        // Handle file upload logic
-        const file = req.file;
-        console.log('Uploaded File:', file);
-
-        // Add your file processing logic here
-        // Example: save the file, update database, etc.
-
-        res.status(200).json({ message: 'File uploaded successfully.' });
-    } catch (error) {
-        console.error('Error processing file upload:', error);
-        res.status(500).json({ message: 'Server error.' });
-    }
-});
-
+router.patch('/avatars', authMiddleware, uploadAvatar, updateUserAvatar);
 
 export default router;

@@ -1,4 +1,5 @@
-import { listContacts, getContactById, removeContact, addContact, updateContactById } from "../services/contactsServices.js";
+import { listContacts, getContactById, removeContact, 
+  addContact, updateContactById, updateStatusContact } from "../services/contactsServices.js";
 import { createContactSchema, 
          updateContactSchema } from "../schemas/contactsSchemas.js"; 
 import validateBody from "../helpers/validateBody.js"; 
@@ -136,7 +137,7 @@ export const updateContactFavoriteStatus = async (req, res) => {
         return res.status(400).json({ message: 'Invalid request body' });
        }
   
-      const updatedContact = await updateStatusContact(contactId, { favorite });
+      const updatedContact = await updateStatusContact(contactId, { favorite }, req.user.userId);
        if (!updatedContact) {
         return res.status(404).json({ message: 'Contact not found' });
       }

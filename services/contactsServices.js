@@ -66,9 +66,9 @@ export async function updateContactById(contactId, newData,ownerId ) {
 
 export const updateStatusContact = async (contactId, newData, ownerId) => {
     try {
-      const updatedContact = await Contact.findByIdAndUpdate(
+      const updatedContact = await Contact.findOneAndUpdate(
         {_id:contactId, owner: ownerId },
-        newData,
+        { $set: { favorite: newData.favorite } }, // Update the favorite status
          { new: true });
   
       return updatedContact;

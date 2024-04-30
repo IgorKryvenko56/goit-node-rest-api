@@ -32,7 +32,7 @@ const multerFileFilter = (req, file, cb) => {
    limits: {
     fileSize: 2 * 1024 * 1024, //1048576,
    },
-}).single("avatar");
+}).single('avatar');
    
   
 

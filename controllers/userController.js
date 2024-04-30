@@ -5,7 +5,7 @@ import fs from 'fs/promises';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { registerSchema, loginSchema } from '../schemas/authSchemas.js';
-import { uploadAvatar } from '../middleware/multerMiddleware.js';
+//import { uploadAvatar } from '../middleware/multerMiddleware.js';
 import HttpError from '../helpers/HttpError.js';
 
 
@@ -124,8 +124,54 @@ export const postCurrentUserLogout = async (userId) => {
     }
   };
 
-  // function to handle avatar update for authenticated users
+  
+// Update user avatar
 export const updateUserAvatar = async (req, res) => {
+  try {
+      // Check if req.file is populated by multer
+      if (!req.file) {
+          return res.status(400).json({ message: 'No file uploaded.' });
+      }
+
+      const imagePath = req.file.path;
+
+      // Load the uploaded image using jimp
+      const image = await jimp.read(imagePath);
+
+      // Resize the image
+      await image.resize(250, 250);
+
+      // Define paths for avatar directory
+      const avatarDirectory = path.resolve('public', 'avatars');
+      const fileExtension = req.file.originalname.split('.').pop();
+      const uniqueFilename = `${req.user.userId}.${fileExtension}`;
+      const targetFilePath = path.resolve(avatarDirectory, uniqueFilename);
+
+      // Save the resized image to the avatar directory
+      await image.writeAsync(targetFilePath);
+
+const serverURL = 'http://localhost:3000'; // Base URL of your server
+const avatarPath = '/avatars'; // Path where avatar images are served from
+const avatarURL = `${serverURL}${avatarPath}/${uniqueFilename}`;
+
+      // Update user's avatarURL field in the database
+      const user = await User.findById(req.user.userId);
+      if (!user) {
+          return res.status(404).json({ message: 'User not found' });
+      }
+      user.avatarURL = avatarURL;
+      await user.save();
+
+      // Return success response with updated avatarURL
+      res.status(200).json({ message: 'File uploaded successfully.', avatarURL });
+  } catch (error) {
+      console.error('Error processing file upload:', error);
+      res.status(500).json({ message: 'Server error.' });
+  }
+};
+
+
+/*export const updateUserAvatar = async (req, res) => {
   try {
     // Use the uploadAvatar middleware to handle file upload
     uploadAvatar(req, res, async (err) => {
@@ -167,7 +213,7 @@ export const updateUserAvatar = async (req, res) => {
        await fs.unlink(imagePath);
 
      // Return success response with updated avatarURL
-      res.status(200).json({ avatarURL: avatarPath });
+      res.status(200).json({ avatarURL });
     } catch (error) {
       console.error('Error processing avatar:', error);
       res.status(500).json({ message: 'Server error' });
@@ -179,3 +225,4 @@ export const updateUserAvatar = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+*/
