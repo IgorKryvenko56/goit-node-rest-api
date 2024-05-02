@@ -95,7 +95,7 @@ router.get('/auth/verify/:verificationToken', async (req, res) => {
         res.status(200).json({ message: 'Verification successful' });
     } catch (error) {
         // Respond with error message if user not found
-        res.status(404).json({ message: error.message });
+        res.status(404).json({ message: 'User not found' });
     }
 });
 
@@ -116,7 +116,7 @@ router.post('/verify', async (req, res) => {
         }
 
         // Check if the user is already verified
-        if (user.verified) {
+        if (user.verify) {
             return res.status(400).json({ message: 'Verification has already been passed' });
         }
 

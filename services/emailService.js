@@ -61,17 +61,4 @@ text: `Hello, please click on the following link to verify your
     }
   };
 
-  // Usage example
-  //const userEmailAddress = 'user@example.com';
-  //const verificationToken = 'generated_verification_token';
-  //sendVerificationEmail(userEmailAddress, verificationToken);
- 
-
-
-/*export class Email {
-    constructor(user, url) {
-        this.to = user.email;
-        this.name
-
-    }
-}*/
+  

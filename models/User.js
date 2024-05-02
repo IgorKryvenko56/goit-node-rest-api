@@ -34,15 +34,20 @@ const userSchema = new Schema({
         },
     verificationToken: {
         type: String,
-        required: [true, 'Verify token is required'],
+        required: function() {
+            return !this.verify;
+          },
+        //required: [true, 'Verify token is required'],
         },
     
   avatarURL: {
     type: String,
     default: function() {
-        // Generate avatar URL based on user's email using Gravatar
+        if (this.email) {
         const emailHash = crypto.createHash('md5').update(this.email).digest('hex');
         return `https://gravatar.com/avatar/${emailHash}?d=robohash`;
+    }
+    return null;
   },
  },
 }, { versionKey: false, timestamps: true });
