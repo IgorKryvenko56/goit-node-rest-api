@@ -1,0 +1,29 @@
+import Jimp from "jimp";
+import fs from "fs/promises";
+import path from "path";
+
+// Temporary image processing function (separate module)
+export const processImage = async (uploadedFilePath) => {
+  try {
+    // Load the uploaded image using Jimp
+    const image = await Jimp.read(uploadedFilePath);
+
+    // Resize the image
+    image.resize(250, 250);
+
+    // Define the path for the resized image
+    const resizedImagePath = path.join(__dirname, "tmp", "resized-image.jpg");
+
+    // Save the resized image
+    await image.writeAsync(resizedImagePath);
+
+    // Perform cleanup: Remove the uploaded file from the temp directory
+    await fs.unlink(uploadedFilePath);
+
+    return resizedImagePath;
+  } catch (error) {
+    console.error("Error processing image:", error);
+    throw new Error("Image processing failed");
+  }
+};
+
