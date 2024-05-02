@@ -19,8 +19,9 @@ try {
       return next(HttpError(401, 'User not authenticated or missing user ID'));
     }
     // Retrieve all contacts where the owner is not specified (null or undefined)
-    const contacts = await Contact.find({ owner: { $exists: false } });
-   //const contacts = await listContacts(ownerId);
+    const contacts = await Contact.find({ owner: { $exists: false }});
+    //listContacts(ownerId);
+    
     res.status(200).json(contacts);
 } catch (error) {
     console.error('Error in getAllContacts:', error);
@@ -33,12 +34,14 @@ export const getOneContact = async (req, res, next) => {
      try {
         const contact = await getContactById(id);
 
-        if (!contact) {
+        if (contact) {
+          res.status(200).json(contact);
+        } else {
           return next(HttpError(404, 'Contact not found'));
         }
-         res.status(200).json(contact);
-        } catch {
-        next(HttpError(500, "Internal Server Error"));
+      } catch {
+        console.error('Error retrieving contact by ID:', error);
+        return next(HttpError(500, "Internal Server Error"));
  }
 };
 export const deleteContact = [verifyContactOwner, async(req, res, next) => {

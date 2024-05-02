@@ -27,13 +27,3 @@ export const processImage = async (uploadedFilePath) => {
   }
 };
 
-/*// Usage example (assuming 'uploadedFilePath' is the path to the uploaded image)
-const uploadedFilePath = path.join(__dirname, "tmp", "uploaded-image.jpg");
-processImage(uploadedFilePath)
-  .then((resizedImagePath) => {
-    console.log("Image processed successfully:", resizedImagePath);
-  })
-  .catch((error) => {
-    console.error("Image processing error:", error);
-  });
-  */
