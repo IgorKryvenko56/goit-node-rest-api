@@ -27,17 +27,25 @@ const userSchema = new Schema({
     token: {
       type: String,
       default: null,
-  },
+    },
+    verify: {
+        type: Boolean,
+        default: false,
+        },
+    verificationToken: {
+        type: String,
+        required: [true, 'Verify token is required'],
+        },
+    
   avatarURL: {
     type: String,
     default: function() {
         // Generate avatar URL based on user's email using Gravatar
-        const hash = crypto.createHash('md5').update(this.email).digest('hex');
-        return `https://gravatar.com/avatar/${hash}?d=robohash`;
+        const emailHash = crypto.createHash('md5').update(this.email).digest('hex');
+        return `https://gravatar.com/avatar/${emailHash}?d=robohash`;
   },
  },
-},
-{ versionKey: false, timestamps: true });
+}, { versionKey: false, timestamps: true });
 
 //Pre-save hook to generate Gravatar URL if avatarURL is not provided
 userSchema.pre('save', async function(next) {
@@ -45,7 +53,7 @@ userSchema.pre('save', async function(next) {
     const emailHash = crypto.createHash('md5').update(this.email).digest('hex');
     console.log({ emailHash });
 
-    this.avatarURL = `https://gravatar.com/avatar/${hash}?d=robohash`;
+    this.avatarURL = `https://gravatar.com/avatar/${emailHash}?d=robohash`;
    }
    next();
 });

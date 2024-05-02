@@ -30,8 +30,9 @@ app.use(express.static("public"));
 
 // Routes
 app.use('/api/users', usersRouter);
+app.use('/api/contacts', contactsRouter);
 app.use('/api/protected', protectedRouter);
-app.use("/api/contacts", contactsRouter);
+
 
 // Handle unknown routes
 app.use((_, res) => {

@@ -4,12 +4,19 @@ import path from 'path';
 import fs from 'fs/promises';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import nodemailer from 'nodemailer';
+import crypto from 'crypto';
+import { v4 as uuidv4 } from 'uuid';
+import { sendVerificationEmail } from '../services/emailService.js';
 import { registerSchema, loginSchema } from '../schemas/authSchemas.js';
 import { uploadAvatar } from '../middleware/multerMiddleware.js';
 import HttpError from '../helpers/HttpError.js';
+import { triggerAsyncId } from 'async_hooks';
+
 
 
 const SALT_ROUNDS = 10;
+
 
 export const registerUser = async (req, res) => {
     try {
@@ -19,7 +26,7 @@ export const registerUser = async (req, res) => {
             return res.status(400).json({ message: error.details[0].message });
         }
 
-        const { email, password } = value;
+        const { email, password } = req.body;
 
         // Check if email is already in use
         const existingUser = await User.findOne({ email });
@@ -27,24 +34,50 @@ export const registerUser = async (req, res) => {
             return res.status(409).json({ message: 'Email already in use' });
         }
 
-        // Hash the password
-        const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+        // Generate verification token
+    const verificationToken = uuidv4();
+        
+    // Create a new user with hashed password and verification token
+    const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
 
         // Create a new user with hashed password
-        const newUser = new User({ email, password: hashedPassword });
+        const newUser = new User({ email, password: hashedPassword, verificationToken });
         await newUser.save();
 
-        // Return success response
+        // Send verification email
+    await sendVerificationEmail(email, verificationToken);
+
+         // Return success response
         res.status(201).json({
-            user: {
-                email: newUser.email,
-                subscription: newUser.subscription || 'starter',
+          message: 'User registered successfully. Verification email sent.',
+          user: {
+              email: newUser.email,
+              subscription: newUser.subscription || 'starter',
             },
         });
     } catch (error) {
         console.error('Error registering user:', error);
         res.status(500).json({ message: 'Server error' });
     }
+};
+
+// Function to handle email verification (route handler)
+export const verifyUserEmail = async (verificationToken) => {
+  try {
+    // Find user by verification token
+    const user = await User.findOne({ verificationToken });
+    if (!user) {
+      throw new Error('User not found');
+    }
+    // Update user's verification status
+    user.verify = true;
+    user.verificationToken = null;
+    await user.save();
+    // Return true if verification is successful
+    return true; 
+  } catch (error) {
+    throw error; // Throw error if user not found
+  }
 };
 
 export const loginUser = async (req, res) => {
@@ -124,58 +157,47 @@ export const postCurrentUserLogout = async (userId) => {
     }
   };
 
-  // function to handle avatar update for authenticated users
+ // Update user avatar
 export const updateUserAvatar = async (req, res) => {
   try {
-    // Use the uploadAvatar middleware to handle file upload
-    uploadAvatar(req, res, async (err) => {
-     
-      if (err) {
-        console.error('Error uploading file:', err);
-        return res.status(500).json({ message: 'Error uploading file.' });
+      // Check if req.file is populated by multer
+      if (!req.file) {
+          return res.status(400).json({ message: 'No file uploaded.' });
       }
 
-      try {
-
-    // Load the uploaded image using jimp
       const imagePath = req.file.path;
+
+      // Load the uploaded image using jimp
       const image = await jimp.read(imagePath);
-      
-      // Resize the image to 250x250 pixels
-      await image.resize(250, 250);// eslint-disable-next-line no-unused-vars
 
-      // Define paths for temporary and target (public/avatars) directories
-      const targetDir = path.resolve('public', 'avatars');
-      const userId = req.user.userId;
+      // Resize the image
+      await image.resize(250, 250);
+
+      // Define paths for avatar directory
+      const avatarDirectory = path.resolve('public', 'avatars');
       const fileExtension = req.file.originalname.split('.').pop();
-      const uniqueFilename = `${userId}.${fileExtension}`;
-      const targetFilePath = path.resolve(targetDir, uniqueFilename);
+      const uniqueFilename = `${req.user.userId}.${fileExtension}`;
+      const targetFilePath = path.resolve(avatarDirectory, uniqueFilename);
 
-      // Save the resized image to the public/avatars directory
+      // Save the resized image to the avatar directory
       await image.writeAsync(targetFilePath);
 
-       // Update user's avatarURL field in the database
+const serverURL = 'http://localhost:3000'; // Base URL of your server
+const avatarPath = '/avatars'; // Path where avatar images are served from
+const avatarURL = `${serverURL}${avatarPath}/${uniqueFilename}`;
+
+      // Update user's avatarURL field in the database
       const user = await User.findById(req.user.userId);
       if (!user) {
-        return res.status(404).json({ message: 'User not found' });
+          return res.status(404).json({ message: 'User not found' });
       }
-      const avatarURL = `/avatars/${uniqueFilename}`;
       user.avatarURL = avatarURL;
       await user.save();
 
-       // Delete the temporary file after processing
-       await fs.unlink(imagePath);
-
-     // Return success response with updated avatarURL
-      res.status(200).json({ avatarURL: avatarPath });
-    } catch (error) {
-      console.error('Error processing avatar:', error);
-      res.status(500).json({ message: 'Server error' });
-    }
-  });
-
+      // Return success response with updated avatarURL
+      res.status(200).json({ message: 'File uploaded successfully.', avatarURL });
   } catch (error) {
-    console.error('Error updating avatar:', error);
-    res.status(500).json({ message: 'Server error' });
+      console.error('Error processing file upload:', error);
+      res.status(500).json({ message: 'Server error.' });
   }
 };
