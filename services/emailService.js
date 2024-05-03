@@ -21,7 +21,7 @@ const transporter = nodemailer.createTransport({
   
   // Function to send verification email
 export const sendVerificationEmail = async (toEmail, verificationToken) => {
- const verificationLink = `http://localhost:3000/api/users/auth/verify/${verificationToken}`;
+ const verificationLink = `http://localhost:3000/api/users/verify/${verificationToken}`;
 
   const emailConfig = {
     from: 'Magic Elves <from@example.com',
@@ -48,7 +48,7 @@ export const sendVerificationEmail = async (toEmail, verificationToken) => {
   </html>
 `,
 text: `Hello, please click on the following link to verify your
-          email: http://localhost:3000/api/users/auth/verify/${verificationToken}`,
+          email: http://localhost:3000/api/users/verify/${verificationToken}`,
     
   };
    // Send email
